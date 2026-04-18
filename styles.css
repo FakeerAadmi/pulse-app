@@ -599,20 +599,13 @@
 
         /* ══════════════════════ ONBOARDING OVERLAYS ══════════════════════ */
         .onboarding-shell {
-            position: absolute;
+            position: fixed;
             inset: 0;
             background: var(--surface);
             z-index: 1000;
             overflow: hidden;
             display: flex;
         }
-
-        .onboarding-shell {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    background: var(--surface);
-}
 
 .onboarding-shell.done {
             display: none;
