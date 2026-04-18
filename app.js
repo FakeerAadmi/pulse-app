@@ -1,6 +1,7 @@
 /* =========================================================
            SAFE DOM HELPERS — null-guard all getElementById accesses
            ========================================================= */
+        console.log("Pulse app.js loading...");
         // el(id) returns the element or a no-op proxy so .style/.textContent never throws
         function el(id) {
             const e = document.getElementById(id);
@@ -287,17 +288,22 @@
            ONBOARDING
            ========================================================= */
         function nextOnboarding(stepId) {
+            console.log("nextOnboarding called with:", stepId);
             const current = document.querySelector('.onboarding-overlay.show');
             const next = document.getElementById(stepId);
-            if (!next) return;
-            // Slide current left, slide next in from right — shell stays opaque throughout
-            if (current) current.classList.add('slide-out');
-            next.classList.add('show');
-            if (current) {
-                setTimeout(() => {
-                    current.classList.remove('show', 'slide-out');
-                }, 340);
+            console.log("Current overlay:", current);
+            console.log("Next overlay:", next);
+            if (!next) {
+                console.error("Next overlay not found:", stepId);
+                return;
             }
+            if (current) {
+                current.classList.remove('show');
+            }
+            setTimeout(() => {
+                console.log("Adding show to next:", stepId);
+                next.classList.add('show');
+            }, 50);
         }
 
         function finishOnboarding() {
