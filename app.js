@@ -961,19 +961,16 @@
                 }
             }
 
-                // Arc fills proportionally to clean days out of tracked days (max 30)
-                const ratio = totalDays > 0 ? cleanDays / Math.min(totalDays, 30) : 0;
-                el('streakArc').style.strokeDashoffset = arc - ratio * arc;
-
-                // Milestone checks (based on time since last intake for physiological accuracy)
-                if (state.intakes.length > 0) {
-                    const lastT = Math.max(...state.intakes.map(i => i.time));
-                    const cleanMs = now - lastT;
-                    if (cleanMs > 20 * 60000 && !state.milestones['20m'].shown) { showMilestone('20m'); state.milestones['20m'].shown = true; }
-                    if (cleanMs > 12 * 3600000 && !state.milestones['12h'].shown) { showMilestone('12h'); state.milestones['12h'].shown = true; }
-                    if (cleanMs > 72 * 3600000 && !state.milestones['72h'].shown) { showMilestone('72h'); state.milestones['72h'].shown = true; }
-                }
+            // Milestone checks (based on time since last intake for physiological accuracy)
+            if (state.intakes.length > 0) {
+                const lastT = Math.max(...state.intakes.map(i => i.time));
+                const cleanMs = now - lastT;
+                if (cleanMs > 20 * 60000 && !state.milestones['20m'].shown) { showMilestone('20m'); state.milestones['20m'].shown = true; }
+                if (cleanMs > 12 * 3600000 && !state.milestones['12h'].shown) { showMilestone('12h'); state.milestones['12h'].shown = true; }
+                if (cleanMs > 72 * 3600000 && !state.milestones['72h'].shown) { showMilestone('72h'); state.milestones['72h'].shown = true; }
             }
+
+            // Budget bar
 
             // Budget bar
             const budgetInfo = document.getElementById('budgetInfo');
