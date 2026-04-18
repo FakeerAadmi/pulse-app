@@ -607,7 +607,14 @@
             display: flex;
         }
 
-        .onboarding-shell.done {
+        .onboarding-shell {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: var(--surface);
+}
+
+.onboarding-shell.done {
             display: none;
         }
 
