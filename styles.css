@@ -3746,3 +3746,11 @@
             padding: .4rem 1.1rem .7rem;
             line-height: 1.5;
         }
+
+            .scr-scroll,
+            .set-sub-scroll,
+            .onb-content,
+            .graph-ov-scroll,
+            .info-modal {
+              padding-bottom: calc(80px + env(safe-area-inset-bottom, 16px));
+            }
