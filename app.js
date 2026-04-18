@@ -1014,7 +1014,7 @@ function tick() {
     }
 
     requestAnimationFrame(tick);
-}
+
 
         /* =========================================================
            MILESTONE
