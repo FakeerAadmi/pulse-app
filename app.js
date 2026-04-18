@@ -305,8 +305,10 @@
                 next.classList.add('show');
             }, 50);
         }
+        window.nextOnboarding = nextOnboarding;
 
         function finishOnboarding() {
+            console.log("finishOnboarding called");
             state.userProfile.age = parseInt(document.getElementById('pfAge').value) || 28;
             state.userProfile.sex = _pfSex || 'M';
             state.userProfile.weight = parseInt(document.getElementById('pfWeight').value) || 70;
@@ -316,10 +318,7 @@
             state.qlProd = state.userProfile.primaryProduct;
             if (_pfSex === 'F') {
                 state.userProfile.cycleLength = parseInt(document.getElementById('pfCycleLen').value) || 28;
-                state.userProfile.lastPeriod = parseInt(document.getElementById('pfLastPeriod').value) || 1;
             }
-
-            updateMetabolism();
             state.onboarded = true;
 
             // Hide shell — keeps app fully hidden until explicitly dismissed
