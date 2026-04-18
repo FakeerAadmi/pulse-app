@@ -865,159 +865,156 @@
         /* =========================================================
            TICK — updates metrics & graph
            ========================================================= */
-        function tick() {
-            if (!state.onboarded) return; // wait until profile is set
 
-            const now = Date.now();
-            const sat = satAt(now, state.intakes);
-            const satPct = Math.min(sat / SAT_MAX * 100, 100);
+/* =========================================================
+   TICK — updates metrics & graph
+   REPLACE your entire existing tick() function with this one.
+   It starts at `function tick() {` and ends at the matching `}`
+   just before `function showMilestone(key)`.
+   ========================================================= */
+function tick() {
+    if (!state.onboarded) return; // wait until profile is set
 
-            document.getElementById('mSat').textContent = satPct.toFixed(0) + '%';
-            document.getElementById('mSat').className = 'met-val';
-            if (window.setSatFluid) window.setSatFluid(satPct);
+    const now = Date.now();
+    const sat = satAt(now, state.intakes);
+    const satPct = Math.min(sat / SAT_MAX * 100, 100);
 
-            const ttb = sat > 0.01 ? Math.ceil(Math.log(sat / 0.05) / K / 60000) : 0;
-            const mClear = document.getElementById('mClear');
-            if (ttb > 0) {
-                mClear.textContent = ttb >= 60 ? (ttb / 60).toFixed(1) + 'h' : ttb + 'm';
-                mClear.className = 'met-val ' + (ttb > 60 ? 'warn' : ttb > 30 ? 'amber' : '');
+    document.getElementById('mSat').textContent = satPct.toFixed(0) + '%';
+    document.getElementById('mSat').className = 'met-val';
+    if (window.setSatFluid) window.setSatFluid(satPct);
+
+    const ttb = sat > 0.01 ? Math.ceil(Math.log(sat / 0.05) / K / 60000) : 0;
+    const mClear = document.getElementById('mClear');
+    if (ttb > 0) {
+        mClear.textContent = ttb >= 60 ? (ttb / 60).toFixed(1) + 'h' : ttb + 'm';
+        mClear.className = 'met-val ' + (ttb > 60 ? 'warn' : ttb > 30 ? 'amber' : '');
+    } else {
+        mClear.textContent = 'Clear'; mClear.className = 'met-val sage';
+    }
+
+    updateBiometrics();
+    showBioDeltaToast();
+    const dop = document.getElementById('mDop');
+    if (dop) {
+        if (satPct > 50) { dop.textContent = 'Elevated'; dop.className = 'met-val amber'; }
+        else if (satPct > 20) { dop.textContent = 'Settling'; dop.className = 'met-val'; }
+        else if (satPct > 5) { dop.textContent = 'Recovering'; dop.className = 'met-val'; }
+        else { dop.textContent = 'Baseline'; dop.className = 'met-val sage'; }
+    }
+
+    // CO clearance — stored in state for recovery rings in Insights
+    const combustibleLogs = state.intakes.filter(l => P[l.product]?.combustible);
+    if (combustibleLogs.length > 0) {
+        const lastCombustible = Math.max(...combustibleLogs.map(l => l.time));
+        const elapsed = now - lastCombustible;
+        state.lastCombustibleElapsed = elapsed;
+    } else {
+        state.lastCombustibleElapsed = null;
+    }
+
+    // Cumulative clean days (last 30 days)
+    {
+        const nowMs = Date.now();
+        const d = new Date(nowMs);
+        const currentMonth = d.getMonth();
+        const currentYear = d.getFullYear();
+        const monthStartMs = new Date(currentYear, currentMonth, 1).getTime();
+
+        const intakesThisMonth = state.intakes.filter(i => i.time >= monthStartMs);
+        const daysWithIntakes = new Set(
+            intakesThisMonth.map(i => new Date(i.time).getDate())
+        );
+
+        const currentDayOfMonth = d.getDate();
+        const cleanDaysSoFar = Math.max(0, currentDayOfMonth - daysWithIntakes.size);
+        const cleanPercentage = Math.round((cleanDaysSoFar / currentDayOfMonth) * 100) || 0;
+
+        const streakNumEl = el('streakNum');
+        if (streakNumEl) streakNumEl.textContent = `${cleanPercentage}%`;
+
+        const streakSubEl = el('streakSub');
+        if (streakSubEl) {
+            if (state.intakes.length === 0) {
+                streakSubEl.textContent = 'Log intakes to track resilience';
             } else {
-                mClear.textContent = 'Clear'; mClear.className = 'met-val sage';
+                streakSubEl.textContent = `${cleanDaysSoFar} of ${currentDayOfMonth} days clean this month`;
             }
-
-            updateBiometrics();
-            showBioDeltaToast();
-            const dop = document.getElementById('mDop');
-            if (dop) {
-                if (satPct > 50) { dop.textContent = 'Elevated'; dop.className = 'met-val amber'; }
-                else if (satPct > 20) { dop.textContent = 'Settling'; dop.className = 'met-val'; }
-                else if (satPct > 5) { dop.textContent = 'Recovering'; dop.className = 'met-val'; }
-                else { dop.textContent = 'Baseline'; dop.className = 'met-val sage'; }
-            }
-
-            // CO clearance — stored in state for recovery rings in Insights
-            const combustibleLogs = state.intakes.filter(l => P[l.product]?.combustible);
-            if (combustibleLogs.length > 0) {
-                const lastCombustible = Math.max(...combustibleLogs.map(l => l.time));
-                const elapsed = now - lastCombustible;
-                state.lastCombustibleElapsed = elapsed; // used by renderRecoveryRings
-            } else {
-                state.lastCombustibleElapsed = null;
-            }
-
-            // Cumulative clean days (last 30 days)
-            {
-                const nowMs = Date.now();
-                const d = new Date(nowMs);
-                const currentMonth = d.getMonth();
-                const currentYear = d.getFullYear();
-                const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-                
-                const monthStartMs = new Date(currentYear, currentMonth, 1).getTime();
-                
-                // Get all intakes in this month
-                const intakesThisMonth = state.intakes.filter(i => i.time >= monthStartMs);
-                
-                // Track which days had intakes
-                const daysWithIntakes = new Set(
-                    intakesThisMonth.map(i => new Date(i.time).getDate())
-                );
-                
-                const currentDayOfMonth = d.getDate();
-                const cleanDaysSoFar = Math.max(0, currentDayOfMonth - daysWithIntakes.size);
-                const cleanPercentage = Math.round((cleanDaysSoFar / currentDayOfMonth) * 100) || 0;
-
-                const streakNumEl = el('streakNum');
-                if (streakNumEl) streakNumEl.textContent = `${cleanPercentage}%`;
-                
-                const streakSubEl = el('streakSub');
-                if (streakSubEl) {
-                    if (state.intakes.length === 0) {
-                        streakSubEl.textContent = 'Log intakes to track resilience';
-                    } else {
-                        streakSubEl.textContent = `${cleanDaysSoFar} of ${currentDayOfMonth} days clean this month`;
-                    }
-                }
-                
-                // Render Resilience Grid
-                const gridEl = el('resilienceGrid');
-                if (gridEl) {
-                    gridEl.innerHTML = '';
-                    
-                    // We render 28 days (4 weeks) to fit nicely in 7 columns
-                    // Starting from 27 days ago to today
-                    for (let i = 27; i >= 0; i--) {
-                        const targetDate = new Date(nowMs - i * 86400000);
-                        targetDate.setHours(0,0,0,0);
-                        const targetStart = targetDate.getTime();
-                        const targetEnd = targetStart + 86400000;
-                        
-                        const hasIntake = state.intakes.some(intake => intake.time >= targetStart && intake.time < targetEnd);
-                        
-                        const dayDiv = document.createElement('div');
-                        dayDiv.className = 'resilience-day ' + (hasIntake ? 'used' : 'clean');
-                        gridEl.appendChild(dayDiv);
-                    }
-                }
-            }
-
-            // Milestone checks (based on time since last intake for physiological accuracy)
-            if (state.intakes.length > 0) {
-                const lastT = Math.max(...state.intakes.map(i => i.time));
-                const cleanMs = now - lastT;
-                if (cleanMs > 20 * 60000 && !state.milestones['20m'].shown) { showMilestone('20m'); state.milestones['20m'].shown = true; }
-                if (cleanMs > 12 * 3600000 && !state.milestones['12h'].shown) { showMilestone('12h'); state.milestones['12h'].shown = true; }
-                if (cleanMs > 72 * 3600000 && !state.milestones['72h'].shown) { showMilestone('72h'); state.milestones['72h'].shown = true; }
-            }
-
-            // Budget bar
-
-            // Budget bar
-            const budgetInfo = document.getElementById('budgetInfo');
-            if (state.dailyBudget > 0 && budgetInfo) {
-                budgetInfo.style.display = 'flex';
-                const todayMg = state.intakes.filter(l => new Date(l.time).toDateString() === new Date().toDateString()).reduce((s, l) => s + l.mg, 0);
-                const pct = Math.min(todayMg / state.dailyBudget, 1) * 100;
-                const remaining = Math.max(0, state.dailyBudget - todayMg).toFixed(1);
-                el('budgetFill').style.width = pct + '%';
-                el('budgetFill').style.background = pct > 85 ? 'var(--warn)' : pct > 60 ? 'var(--amber-light)' : 'var(--sage)';
-                el('budgetLeft').textContent = remaining + 'mg left';
-                el('budgetRight').textContent = state.dailyBudget + 'mg daily limit';
-            } else if (budgetInfo) {
-                budgetInfo.style.display = 'none';
-            }
-
-            // Stats screen
-            const ccVal = document.getElementById('ccVal');
-            const ccSub = document.getElementById('ccSub');
-            if (state.intakes.length > 0) {
-                const lastT = Math.max(...state.intakes.map(i => i.time));
-                const em = Math.floor((now - lastT) / 60000);
-                ccVal.textContent = em < 60 ? em + 'm' : (em / 60).toFixed(1) + 'h';
-                ccSub.textContent = 'since last intake';
-                const todayLogs = state.intakes.filter(l => new Date(l.time).toDateString() === new Date().toDateString()).sort((a, b) => a.time - b.time);
-                let maxGap = 0;
-                for (let i = 1; i < todayLogs.length; i++) maxGap = Math.max(maxGap, todayLogs[i].time - todayLogs[i - 1].time);
-                document.getElementById('cleanWindow').textContent = maxGap > 0 ? (maxGap / 3600000).toFixed(1) + 'h' : '—';
-            } else {
-                ccVal.textContent = '—'; ccSub.textContent = 'No intake logged yet';
-                document.getElementById('cleanWindow').textContent = '—';
-            }
-
-            drawGraph();
-
-            // Update planned gap status display
-            renderPlannedGap();
-
-            // Check for evening reflection prompt (throttled — max once per minute)
-            if (!tick._lastReflectionCheck || now - tick._lastReflectionCheck > 60000) {
-                tick._lastReflectionCheck = now;
-                maybeShowReflection();
-                maybeShowWeeklySummary();
-            }
-
-            requestAnimationFrame(tick);
         }
+
+        // Render Resilience Grid
+        const gridEl = el('resilienceGrid');
+        if (gridEl) {
+            gridEl.innerHTML = '';
+            for (let i = 27; i >= 0; i--) {
+                const targetDate = new Date(nowMs - i * 86400000);
+                targetDate.setHours(0, 0, 0, 0);
+                const targetStart = targetDate.getTime();
+                const targetEnd = targetStart + 86400000;
+
+                const hasIntake = state.intakes.some(intake => intake.time >= targetStart && intake.time < targetEnd);
+
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'resilience-day ' + (hasIntake ? 'used' : 'clean');
+                gridEl.appendChild(dayDiv);
+            }
+        }
+    }
+
+    // Milestone checks (based on time since last intake)
+    if (state.intakes.length > 0) {
+        const lastT = Math.max(...state.intakes.map(i => i.time));
+        const cleanMs = now - lastT;
+        if (cleanMs > 20 * 60000 && !state.milestones['20m'].shown) { showMilestone('20m'); state.milestones['20m'].shown = true; }
+        if (cleanMs > 12 * 3600000 && !state.milestones['12h'].shown) { showMilestone('12h'); state.milestones['12h'].shown = true; }
+        if (cleanMs > 72 * 3600000 && !state.milestones['72h'].shown) { showMilestone('72h'); state.milestones['72h'].shown = true; }
+    }
+
+    // Budget bar
+    const budgetInfo = document.getElementById('budgetInfo');
+    if (state.dailyBudget > 0 && budgetInfo) {
+        budgetInfo.style.display = 'flex';
+        const todayMg = state.intakes.filter(l => new Date(l.time).toDateString() === new Date().toDateString()).reduce((s, l) => s + l.mg, 0);
+        const pct = Math.min(todayMg / state.dailyBudget, 1) * 100;
+        const remaining = Math.max(0, state.dailyBudget - todayMg).toFixed(1);
+        el('budgetFill').style.width = pct + '%';
+        el('budgetFill').style.background = pct > 85 ? 'var(--warn)' : pct > 60 ? 'var(--amber-light)' : 'var(--sage)';
+        el('budgetLeft').textContent = remaining + 'mg left';
+        el('budgetRight').textContent = state.dailyBudget + 'mg daily limit';
+    } else if (budgetInfo) {
+        budgetInfo.style.display = 'none';
+    }
+
+    // Stats screen
+    const ccVal = document.getElementById('ccVal');
+    const ccSub = document.getElementById('ccSub');
+    if (state.intakes.length > 0) {
+        const lastT = Math.max(...state.intakes.map(i => i.time));
+        const em = Math.floor((now - lastT) / 60000);
+        ccVal.textContent = em < 60 ? em + 'm' : (em / 60).toFixed(1) + 'h';
+        ccSub.textContent = 'since last intake';
+        const todayLogs = state.intakes.filter(l => new Date(l.time).toDateString() === new Date().toDateString()).sort((a, b) => a.time - b.time);
+        let maxGap = 0;
+        for (let i = 1; i < todayLogs.length; i++) maxGap = Math.max(maxGap, todayLogs[i].time - todayLogs[i - 1].time);
+        document.getElementById('cleanWindow').textContent = maxGap > 0 ? (maxGap / 3600000).toFixed(1) + 'h' : '—';
+    } else {
+        ccVal.textContent = '—'; ccSub.textContent = 'No intake logged yet';
+        document.getElementById('cleanWindow').textContent = '—';
+    }
+
+    drawGraph();
+
+    // Update planned gap status display
+    renderPlannedGap();
+
+    // Check for evening reflection prompt (throttled — max once per minute)
+    if (!tick._lastReflectionCheck || now - tick._lastReflectionCheck > 60000) {
+        tick._lastReflectionCheck = now;
+        maybeShowReflection();
+        maybeShowWeeklySummary();
+    }
+
+    requestAnimationFrame(tick);
+}
 
         /* =========================================================
            MILESTONE
