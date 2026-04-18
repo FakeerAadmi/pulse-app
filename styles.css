@@ -612,25 +612,27 @@
         }
 
         .onboarding-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            padding: 3rem 1.5rem max(3rem, calc(env(safe-area-inset-bottom) + 2rem));
-            background: var(--surface);
-            transform: translateX(100%);
-            transition: transform .32s cubic-bezier(.4, 0, .2, 1);
-            pointer-events: none;
-        }
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 3rem 1.5rem max(2rem, calc(env(safe-area-inset-bottom) + 1.5rem));
+  background: var(--surface);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+  z-index: 901;
+}
 
-        .onboarding-overlay.show {
-            transform: translateX(0);
-            pointer-events: all;
-        }
+.onboarding-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
 
-        .onboarding-overlay.slide-out {
-            transform: translateX(-30%);
-        }
+.onboarding-overlay.slide-out {
+  opacity: 0;
+  pointer-events: none;
+}
 
         .onb-content {
             flex: 1;
