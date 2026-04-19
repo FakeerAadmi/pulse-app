@@ -525,7 +525,7 @@
         .bot-nav {
             height: auto;
             min-height: 76px;
-            padding: 0 2px max(32px, calc(20px + env(safe-area-inset-bottom)));
+            padding: 0 2px max(16px, calc(10px + env(safe-area-inset-bottom)));
             display: flex;
             align-items: flex-end;
             overflow: visible;
@@ -546,7 +546,7 @@
             justify-content: flex-end;
             gap: 3px;
             cursor: pointer;
-            padding: 0 2px 2px;
+            padding: 0 2px 4px;
             border: none;
             background: none;
             border-radius: 0;
