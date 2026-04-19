@@ -107,81 +107,75 @@
                             </div>
                         </div>
 <div class="biometrics-lockable" id="bioLockable">
-        <div class="bio-blur-target">
-        <!-- HRV row — second line, full width -->
+
+    <div class="bio-blur-target">
         <div class="hrv-row-strip">
             <div class="hrv-row-lbl">HRV estimate</div>
             <div class="hrv-row-val" id="mHrv">—</div>
             <div class="hrv-row-unit">ms · nervous system calm score</div>
         </div>
-                        <!-- HRV row — second line, full width -->
-                        <div class="hrv-row-strip">
-                            <div class="hrv-row-lbl">HRV estimate</div>
-                            <div class="hrv-row-val" id="mHrv">—</div>
-                            <div class="hrv-row-unit">ms · nervous system calm score</div>
-                        </div>
+        <div class="bio-strip" id="bioStrip">
+            <div class="bio-card">
+                <div class="bio-lbl">RHR</div>
+                <div class="bio-val" id="bRhr">—</div>
+                <div class="bio-unit">bpm</div>
+                <div class="bio-delta" id="dRhr"></div>
+            </div>
+            <div class="bio-card">
+                <div class="bio-lbl">SpO₂</div>
+                <div class="bio-val" id="bSpo2">—</div>
+                <div class="bio-unit">%</div>
+                <div class="bio-delta" id="dSpo2"></div>
+            </div>
+            <div class="bio-card">
+                <div class="bio-lbl">Stress</div>
+                <div class="bio-val" id="bStress">—</div>
+                <div class="bio-unit">score</div>
+                <div class="bio-delta" id="dStress"></div>
+            </div>
+            <div class="bio-card">
+                <div class="bio-lbl">Resp.</div>
+                <div class="bio-val" id="bResp">—</div>
+                <div class="bio-unit">br/min</div>
+            </div>
+            <div class="bio-card">
+                <div class="bio-lbl">HRV</div>
+                <div class="bio-val" id="bHrv">—</div>
+                <div class="bio-unit">ms</div>
+                <div class="bio-delta" id="dHrv"></div>
+            </div>
+            <div class="bio-card">
+                <div class="bio-lbl">Steps</div>
+                <div class="bio-val" id="bSteps">—</div>
+                <div class="bio-unit">today</div>
+            </div>
+            <div class="bio-card">
+                <div class="bio-lbl">Sleep</div>
+                <div class="bio-val" id="bSleep">—</div>
+                <div class="bio-unit">score</div>
+            </div>
+            <div class="bio-card" id="bCycleCard" style="display:none">
+                <div class="bio-lbl">Cycle</div>
+                <div class="bio-val" id="bCycle">—</div>
+                <div class="bio-unit" id="bCycleUnit">phase</div>
+            </div>
+            <div class="bio-card bio-updated-card">
+                <div class="bio-lbl">Updated</div>
+                <div class="bio-updated-time" id="bioUpdatedTime">—</div>
+            </div>
+        </div>
+    </div><!-- /.bio-blur-target -->
 
-                        <!-- ── SECONDARY BELOW-FOLD (scroll to see) ── -->
-                        <div class="bio-strip" id="bioStrip">
-                            <div class="bio-card">
-                                <div class="bio-lbl">RHR</div>
-                                <div class="bio-val" id="bRhr">—</div>
-                                <div class="bio-unit">bpm</div>
-                                <div class="bio-delta" id="dRhr"></div>
-                            </div>
-                            <div class="bio-card">
-                                <div class="bio-lbl">SpO₂</div>
-                                <div class="bio-val" id="bSpo2">—</div>
-                                <div class="bio-unit">%</div>
-                                <div class="bio-delta" id="dSpo2"></div>
-                            </div>
-                            <div class="bio-card">
-                                <div class="bio-lbl">Stress</div>
-                                <div class="bio-val" id="bStress">—</div>
-                                <div class="bio-unit">score</div>
-                                <div class="bio-delta" id="dStress"></div>
-                            </div>
-                            <div class="bio-card">
-                                <div class="bio-lbl">Resp.</div>
-                                <div class="bio-val" id="bResp">—</div>
-                                <div class="bio-unit">br/min</div>
-                            </div>
-                            <div class="bio-card">
-                                <div class="bio-lbl">HRV</div>
-                                <div class="bio-val" id="bHrv">—</div>
-                                <div class="bio-unit">ms</div>
-                                <div class="bio-delta" id="dHrv"></div>
-                            </div>
-                            <div class="bio-card">
-                                <div class="bio-lbl">Steps</div>
-                                <div class="bio-val" id="bSteps">—</div>
-                                <div class="bio-unit">today</div>
-                            </div>
-                            <div class="bio-card">
-                                <div class="bio-lbl">Sleep</div>
-                                <div class="bio-val" id="bSleep">—</div>
-                                <div class="bio-unit">score</div>
-                            </div>
-                            <div class="bio-card" id="bCycleCard" style="display:none">
-                                <div class="bio-lbl">Cycle</div>
-                                <div class="bio-val" id="bCycle">—</div>
-                                <div class="bio-unit" id="bCycleUnit">phase</div>
-                            </div>
-                            <div class="bio-card bio-updated-card">
-                                <div class="bio-lbl">Updated</div>
-                                <div class="bio-updated-time" id="bioUpdatedTime">—</div>
-                            </div>
-                        </div>
+    <div class="tracker-blur-overlay" id="trackerBlurOverlay">
+        <div class="tracker-blur-content">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22" style="color:var(--ink-dim)"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <div class="tbo-title">These are estimates</div>
+            <div class="tbo-sub">Connect a smart tracker (Apple Watch, Garmin, Fitbit) to get real biometric readings instead of model-based estimates.</div>
+            <button class="tbo-btn" onclick="document.getElementById('bioLockable').classList.add('unlocked')">Okay, I understand</button>
+        </div>
+    </div><!-- /.tracker-blur-overlay -->
 
-                        <div class="tracker-blur-overlay" id="trackerBlurOverlay">
-    <div class="tracker-blur-content">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" style="color:var(--ink-dim);margin-bottom:.6rem"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        <div class="tbo-title">These are estimates</div>
-        <div class="tbo-sub">Connect a smart tracker (Apple Watch, Garmin, Fitbit) to get real biometric readings instead of model-based estimates.</div>
-        <button class="tbo-btn" onclick="document.getElementById('trackerBlurOverlay').style.display='none'">Okay, I Understand</button>
-    </div>
-</div>
-      </div>
+</div><!-- /.biometrics-lockable -->
                         
                         <!-- Quick log — stays above fold -->
                         <div class="quick-log-section" id="tourQuickLogEl">
