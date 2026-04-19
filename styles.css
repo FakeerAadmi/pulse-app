@@ -476,6 +476,135 @@
             border-radius: 3px;
         }
 
+/* ══ WELCOME SCREEN ══ */
+.onb-welcome-body {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.onb-welcome-body::-webkit-scrollbar { display: none; }
+
+.onb-welcome-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+}
+
+.onb-welcome-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--sage-bg);
+    border: 1px solid var(--sage-border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sage);
+}
+
+.onb-welcome-version {
+    font-family: var(--font-mono);
+    font-size: .52rem;
+    letter-spacing: .12em;
+    color: var(--ink-faint);
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 100px;
+    padding: .25rem .65rem;
+}
+
+.onb-welcome-hero {
+    margin-bottom: 2.2rem;
+}
+
+.onb-welcome-title {
+    font-family: var(--font-serif);
+    font-size: 4.2rem;
+    font-weight: 300;
+    letter-spacing: -.04em;
+    color: var(--ink);
+    line-height: .95;
+    margin-bottom: .5rem;
+}
+
+.onb-welcome-tagline {
+    font-family: var(--font-serif);
+    font-size: 1.9rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--sage);
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    margin-bottom: .85rem;
+}
+
+.onb-welcome-sub {
+    font-family: var(--font-mono);
+    font-size: .58rem;
+    color: var(--ink-dim);
+    line-height: 1.7;
+    letter-spacing: .02em;
+}
+
+.onb-welcome-features {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-bottom: 1.8rem;
+    flex: 1;
+}
+
+.onb-welcome-feat {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    background: var(--bg-card);
+    border-radius: var(--rs);
+    padding: .8rem .9rem;
+}
+
+.onb-feat-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--sage-bg);
+    border: 1px solid var(--sage-border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sage);
+    flex-shrink: 0;
+    margin-top: .05rem;
+}
+
+.onb-feat-title {
+    font-size: .82rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: .18rem;
+}
+
+.onb-feat-sub {
+    font-family: var(--font-mono);
+    font-size: .52rem;
+    color: var(--ink-dim);
+    line-height: 1.55;
+}
+
+.onb-welcome-disclaimer {
+    font-family: var(--font-mono);
+    font-size: .48rem;
+    color: var(--ink-faint);
+    letter-spacing: .06em;
+    text-align: center;
+    padding-bottom: .25rem;
+}
+
         /* ── HEADERS ── */
         .scr-header {
             padding: .4rem 1.1rem .5rem;
