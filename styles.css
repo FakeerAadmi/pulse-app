@@ -654,7 +654,7 @@
         .bot-nav {
             height: auto;
             min-height: 76px;
-            padding: 0 2px max(16px, calc(10px + env(safe-area-inset-bottom)));
+            padding: 0 2px max(16px, calc(8px + env(safe-area-inset-bottom)));
             display: flex;
             align-items: flex-end;
             overflow: visible;
