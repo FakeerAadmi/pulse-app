@@ -1635,7 +1635,64 @@
             </div>
 
             <div class="onboarding-shell" id="onbShell">
-                <div class="onboarding-overlay show" id="onbDisclaimer">
+                <div class="onboarding-overlay show" id="onbWelcome">
+    <div class="onb-welcome-body">
+
+        <div class="onb-welcome-top">
+            <div class="onb-welcome-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+            </div>
+            <div class="onb-welcome-version">v2.3.0</div>
+        </div>
+
+        <div class="onb-welcome-hero">
+            <div class="onb-welcome-title">Pulse</div>
+            <div class="onb-welcome-tagline">Nicotine<br>Intelligence</div>
+            <div class="onb-welcome-sub">Understand your body's chemistry.<br>Make informed choices.</div>
+        </div>
+
+        <div class="onb-welcome-features">
+            <div class="onb-welcome-feat">
+                <div class="onb-feat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <div class="onb-feat-text">
+                    <div class="onb-feat-title">Real-time pharmacokinetics</div>
+                    <div class="onb-feat-sub">See exactly how much nicotine is active in your body, and when it clears.</div>
+                </div>
+            </div>
+            <div class="onb-welcome-feat">
+                <div class="onb-feat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <div class="onb-feat-text">
+                    <div class="onb-feat-title">Body signal tracking</div>
+                    <div class="onb-feat-sub">HRV, resting heart rate, SpO₂ and stress — estimated from your intake log.</div>
+                </div>
+            </div>
+            <div class="onb-welcome-feat">
+                <div class="onb-feat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="onb-feat-text">
+                    <div class="onb-feat-title">Entirely private</div>
+                    <div class="onb-feat-sub">No servers. No accounts. No analytics. Everything stays on your device.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="onb-welcome-disclaimer">
+            For informational use only · Not medical advice
+        </div>
+
+    </div>
+
+    <button class="onb-btn" onclick="nextOnboarding('onbDisclaimer')">Get started</button>
+</div>
+                
+                <div class="onboarding-overlay" id="onbDisclaimer">
                     <div class="onb-content">
                         <div class="onb-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none"
                                 stroke="currentColor" stroke-width="2">
