@@ -2138,10 +2138,30 @@ function openSetSub(id) {
     updateLogPill('settings-sub', 0);
 }
 window.saveCommitment = function () {
-    const txt = document.getElementById('commitmentText').value;
-    localStorage.setItem('pulse_commitment', txt);
-    nextOnboarding('onbPrivacy');
+    const txt = document.getElementById('commitmentText').value.trim();
+    if (txt) localStorage.setItem('pulse_commitment', txt);
+    finishOnboarding();
 };
+function onbCheckScroll() {
+    const el = document.getElementById('onbDisclaimerScroll');
+    const hint = document.getElementById('onbScrollHint');
+    const confirm = document.getElementById('onbDisclaimerConfirm');
+    if (!el) return;
+    const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 40;
+    if (nearBottom) {
+        if (hint) hint.style.display = 'none';
+        if (confirm) confirm.classList.add('visible');
+    }
+}
+
+function onbCheckReady() {
+    const cb = document.getElementById('onbDisclaimerCb');
+    const btn = document.getElementById('onbDisclaimerBtn');
+    if (!cb || !btn) return;
+    btn.disabled = !cb.checked;
+    btn.style.opacity = cb.checked ? '1' : '0.38';
+    btn.style.cursor = cb.checked ? 'pointer' : 'not-allowed';
+}
 
 function closeSetSub(id) {
     document.getElementById(id).classList.remove('open');
