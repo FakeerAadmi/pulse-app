@@ -166,6 +166,15 @@
                             </div>
                         </div>
 
+                        <div class="tracker-blur-overlay" id="trackerBlurOverlay">
+    <div class="tracker-blur-content">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" style="color:var(--ink-dim);margin-bottom:.6rem"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <div class="tbo-title">These are estimates</div>
+        <div class="tbo-sub">Connect a smart tracker (Apple Watch, Garmin, Fitbit) to get real biometric readings instead of model-based estimates.</div>
+        <button class="tbo-btn" onclick="document.getElementById('trackerBlurOverlay').style.display='none'">Okay, I Understand</button>
+    </div>
+</div>
+                        
                         <!-- Quick log — stays above fold -->
                         <div class="quick-log-section" id="tourQuickLogEl">
                             <div class="ql-hdr">
@@ -470,10 +479,7 @@
 
                 <div class="screen" id="screen-settings">
                     <div class="scr-header" id="settingsHeader"
-                        style="justify-content:space-between;align-items:flex-end">
                         <div class="scr-title" id="settingsTitleEl">Settings</div>
-                        <div style="font-family:var(--font-mono);font-size:.52rem;color:var(--ink-faint);letter-spacing:.05em;padding-bottom:.1rem"
-                            id="settingsDate"></div>
                     </div>
                     <div class="scr-scroll" id="settingsScroll">
 
