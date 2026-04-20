@@ -4459,3 +4459,76 @@ body.dark .tracker-blur-content {
     justify-content: center;
     gap: .35rem;
 }
+
+/* ---- Focused mode progress bar ---- */
+.focused-budget-label {
+    font-size: .58rem;
+    color: var(--ink-dim);
+    margin-bottom: .4rem;
+    text-align: center;
+}
+.focused-budget-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: var(--rs, 6px);
+    overflow: hidden;
+    margin-bottom: .5rem;
+}
+.focused-budget-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: var(--rs, 6px);
+    transition: width .4s ease;
+}
+
+/* ---- Upgrade nudge ---- */
+.focused-upgrade-nudge {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-size: .55rem;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: .4rem 0;
+    opacity: .8;
+}
+.focused-upgrade-nudge:hover { opacity: 1; }
+
+/* ---- Onboarding mode cards ---- */
+.onb-mode-cards {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-top: 1.2rem;
+    width: 100%;
+}
+.onb-mode-card {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    transition: border-color .18s, background .18s;
+    background: var(--bg-card);
+}
+.onb-mode-card.on {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 7%, var(--bg-card));
+}
+.onb-mode-card-title {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: .3rem;
+}
+.onb-mode-card.on .onb-mode-card-title {
+    color: var(--accent);
+}
+.onb-mode-card-sub {
+    font-size: .58rem;
+    color: var(--ink-dim);
+    line-height: 1.5;
+}
