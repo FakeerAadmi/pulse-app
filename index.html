@@ -215,6 +215,23 @@
                             </div>
                         </div>
 
+                        <!-- Caffeine interaction warning -->
+                        <div class="caffeine-card" id="caffeineCard" style="display:none">
+                            <div class="caf-hdr">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" style="color:var(--amber);flex-shrink:0">
+                                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                                    <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+                                </svg>
+                                <span class="caf-title">Caffeine interaction</span>
+                                <button class="caf-dismiss" onclick="state._caffeineCardDismissed=true;document.getElementById('caffeineCard').style.display='none'">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </button>
+                            </div>
+                            <div class="caf-body">Nicotine withdrawal and caffeine sensitivity feel nearly identical — restlessness, jitteriness, difficulty focusing. What you're feeling right now may be withdrawal, not caffeine.</div>
+                            <div class="caf-detail">Nicotine also speeds caffeine metabolism by ~40%. As your use drops, caffeine clears more slowly and the same coffee hits harder.</div>
+                        </div>
+                        
                         <!-- Daily reflection prompt -->
                         <div class="reflection-card" id="reflectionCard" style="display:none">
                             <div class="rc-title">Quick check-in</div>
@@ -544,15 +561,41 @@
                                             </svg></div>
                                     </div>
                                     <div class="set-menu-item" onclick="openSetSub('setSubReminders')">
-                                        <div class="set-menu-left">
-                                            <div class="set-menu-icon"><svg viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="1.5" width="18" height="18">
-                                                    <path
-                                                        d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0" />
-                                                </svg></div>
-                                            <div>
-                                                <div class="set-menu-title">Reminders</div>
-                                                <div class="set-menu-sub">Log nudges, craving alerts</div>
+                                        <div class="set-sub-scroll">
+                                            <div class="settings-card">
+                                                <div class="settings-row">
+                                                    <div>
+                                                        <div class="sr-lbl">Log reminders</div>
+                                                        <div class="sr-sub">Nudge after your usual intake time</div>
+                                                    </div>
+                                                    <div class="sr-right"><label class="toggle-wrap"><input type="checkbox" class="tog-in" checked><span class="tog-sl"></span></label></div>
+                                                </div>
+                                                <div class="settings-row">
+                                                    <div>
+                                                        <div class="sr-lbl">Craving window alerts</div>
+                                                        <div class="sr-sub">Notify when saturation drops below 15%</div>
+                                                    </div>
+                                                    <div class="sr-right"><label class="toggle-wrap"><input type="checkbox" class="tog-in" id="satNotifToggle"><span class="tog-sl"></span></label></div>
+                                                </div>
+                                                <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:.5rem">
+                                                    <div>
+                                                        <div class="sr-lbl">Notification permission</div>
+                                                        <div class="sr-sub">Required for saturation alerts</div>
+                                                    </div>
+                                                    <button class="notif-perm-btn" id="notifPermBtn" onclick="requestNotificationPermission()">Enable notifications</button>
+                                                </div>
+                                            </div>
+                                        
+                                            <div class="settings-card" style="margin-top:.8rem">
+                                                <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:.5rem">
+                                                    <div>
+                                                        <div class="sr-lbl">Accountability partner</div>
+                                                        <div class="sr-sub">Their name appears during the craving timer</div>
+                                                    </div>
+                                                    <input type="text" class="settings-text-input" id="partnerNameInput"
+                                                        placeholder="e.g. Priya, Mum, Future Me…"
+                                                        oninput="localStorage.setItem('pulse_partner_name', this.value)">
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="set-menu-chevron"><svg viewBox="0 0 24 24" fill="none"
@@ -2075,6 +2118,10 @@
                 </div>
                 <div class="graph-ov-canvas-wrap">
                     <canvas id="expandedGraph"></canvas>
+                    <div class="scrub-cursor" id="scrubCursor" style="display:none">
+                        <div class="scrub-line"></div>
+                        <div class="scrub-bubble" id="scrubBubble"></div>
+                    </div>
                 </div>
                 <div class="graph-ov-stats" id="govStats"></div>
                 <div class="graph-ov-scroll">
