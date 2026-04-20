@@ -1569,44 +1569,6 @@ function updateMode() {
         'Understand patterns': { budget: 0, budgetLabel: 'No limit' },
         'Quit support': { budget: 3, budgetLabel: '3 mg' },
     };
-    // Called during onboarding card selection
-   let _onbMode = 'focused';
-   function onbSelectMode(mode) {
-       _onbMode = mode;
-       document.getElementById('onbModeFocused').classList.toggle('on', mode === 'focused');
-       document.getElementById('onbModeFull').classList.toggle('on', mode === 'full');
-   }
-   function applyOnbMode() {
-       state.pulseMode = _onbMode;
-       applyMode();
-   }
-   window.onbSelectMode = onbSelectMode;
-   window.applyOnbMode = applyOnbMode;
-   
-   // Wire the existing modeSelect dropdown in settings to also write pulseMode
-   function applyMode() {
-       const isFull = state.pulseMode === 'full';
-       // Biometrics section
-       const bio = document.getElementById('bioLockable');
-       if (bio) bio.style.display = isFull ? '' : 'none';
-       // Saturation ring / nicotine curve card
-       const satCard = document.getElementById('satCard'); // ← check your actual ID
-       if (satCard) satCard.style.display = isFull ? '' : 'none';
-       // Caffeine interaction card
-       const caffCard = document.getElementById('caffeineCard');
-       if (caffCard) caffCard.style.display = isFull ? '' : 'none';
-       // HRV/metric tiles — wrap them in a container with id="advancedTiles" (see step D)
-       const advTiles = document.getElementById('advancedTiles');
-       if (advTiles) advTiles.style.display = isFull ? '' : 'none';
-       // Sync the settings dropdown to match
-       const sel = document.getElementById('interfaceModeSelect'); // new select — see step E
-       if (sel) sel.value = state.pulseMode;
-       const nudge = document.getElementById('focusedUpgradeNudge');
-       if (nudge) {
-       const daysSet = new Set(state.intakes.map(i => new Date(i.ts).toDateString()));
-       nudge.style.display = (!isFull && daysSet.size >= 7) ? '' : 'none';
-}
-   }
     const defaults = modeDefaults[state.mode];
     if (defaults) {
         if (defaults.budget > 0 && state.dailyBudget === 0) {
@@ -1617,6 +1579,38 @@ function updateMode() {
     }
     const quitTip = document.getElementById('quitTipCard');
     if (quitTip) quitTip.style.display = state.mode === 'Quit support' ? '' : 'none';
+}
+
+let _onbMode = 'focused';
+function onbSelectMode(mode) {
+    _onbMode = mode;
+    document.getElementById('onbModeFocused').classList.toggle('on', mode === 'focused');
+    document.getElementById('onbModeFull').classList.toggle('on', mode === 'full');
+}
+function applyOnbMode() {
+    state.pulseMode = _onbMode;
+    applyMode();
+}
+window.onbSelectMode = onbSelectMode;
+window.applyOnbMode = applyOnbMode;
+
+function applyMode() {
+    const isFull = state.pulseMode === 'full';
+    const bio = document.getElementById('bioLockable');
+    if (bio) bio.style.display = isFull ? '' : 'none';
+    const satCard = document.getElementById('satCard');
+    if (satCard) satCard.style.display = isFull ? '' : 'none';
+    const caffCard = document.getElementById('caffeineCard');
+    if (caffCard) caffCard.style.display = isFull ? '' : 'none';
+    const advTiles = document.getElementById('advancedTiles');
+    if (advTiles) advTiles.style.display = isFull ? '' : 'none';
+    const sel = document.getElementById('interfaceModeSelect');
+    if (sel) sel.value = state.pulseMode;
+    const nudge = document.getElementById('focusedUpgradeNudge');
+    if (nudge) {
+        const daysSet = new Set(state.intakes.map(i => new Date(i.ts).toDateString()));
+        nudge.style.display = (!isFull && daysSet.size >= 7) ? '' : 'none';
+    }
 }
 
 function updateBudget() {
