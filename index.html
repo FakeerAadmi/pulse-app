@@ -1765,7 +1765,7 @@
     </div>
 
     <!-- 2. MEDICAL DISCLAIMER — foolproof -->
-    <div class="onboarding-overlay" id="onbDisclaimer">
+<div class="onboarding-overlay" id="onbDisclaimer">
         <div class="onb-content" id="onbDisclaimerScroll" onscroll="onbCheckScroll()">
             <div class="onb-icon" style="background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn)">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1778,7 +1778,7 @@
             <div class="onb-disclaimer-alert">
                 Read carefully. You must understand and agree to these terms before using Pulse.
             </div>
-
+ 
             <div class="onb-disclaimer-block">
                 <div class="onb-disclaimer-num">01</div>
                 <div>
@@ -1786,7 +1786,7 @@
                     <p class="onb-text">Pulse is a self-tracking and informational tool only. It does <strong>not</strong> provide medical advice, diagnosis, or treatment of any kind. Nothing in this app should be used as a substitute for professional medical care.</p>
                 </div>
             </div>
-
+ 
             <div class="onb-disclaimer-block">
                 <div class="onb-disclaimer-num">02</div>
                 <div>
@@ -1794,7 +1794,7 @@
                     <p class="onb-text">All biological values displayed — including nicotine saturation, half-life decay curves, HRV estimates, and stress scores — are based on generalised pharmacokinetic models. They are <strong>theoretical approximations</strong> and must never be used to manage medication, time clinical doses, or make any health-critical decision.</p>
                 </div>
             </div>
-
+ 
             <div class="onb-disclaimer-block">
                 <div class="onb-disclaimer-num">03</div>
                 <div>
@@ -1802,22 +1802,25 @@
                     <p class="onb-text">Modifying nicotine intake carries real physiological and psychological risks. By using Pulse, you acknowledge that you are solely responsible for your own health and safety. Pulse and its creators accept no liability for any adverse effects arising from your use of this app.</p>
                 </div>
             </div>
-
+ 
             <div class="onb-disclaimer-block">
                 <div class="onb-disclaimer-num">04</div>
                 <div>
-<div class="onb-disclaimer-heading">Emergencies: do not use this app</div>
-                    <p class="onb-text">If you believe you are experiencing a medical emergency, <strong>call emergency services immediately.</strong> Do not use Pulse.</p>
-                    <div style="background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:8px;padding:.55rem .75rem;margin-top:.45rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
-                        <span style="font-family:var(--font-mono);font-size:.5rem;color:var(--warn);font-weight:500;flex-basis:100%">Emergency numbers</span>
-                        <span style="font-family:var(--font-mono);font-size:.54rem;color:var(--ink-mid)">🇮🇳 <strong>112</strong></span>
-                        <span style="font-family:var(--font-mono);font-size:.54rem;color:var(--ink-mid)">🇺🇸 <strong>911</strong></span>
-                        <span style="font-family:var(--font-mono);font-size:.54rem;color:var(--ink-mid)">🇬🇧 <strong>999</strong></span>
-                        <span style="font-family:var(--font-mono);font-size:.54rem;color:var(--ink-mid)">🌍 EU <strong>112</strong></span>
-                        <span style="font-family:var(--font-mono);font-size:.54rem;color:var(--ink-mid)">🇦🇺 <strong>000</strong></span>
+                    <div class="onb-disclaimer-heading">Emergencies: do not use this app</div>
+                    <p class="onb-text">If you believe you are experiencing a medical emergency, <strong>call emergency services immediately.</strong> Do not use Pulse. Do not delay seeking help because of anything shown in this app.</p>
+                    <div style="background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:8px;padding:.5rem .7rem;margin-top:.4rem">
+                        <div style="font-family:var(--font-mono);font-size:.46rem;color:var(--warn);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.08em">Emergency Numbers</div>
+                        <div style="display:flex;flex-wrap:wrap;gap:.25rem .7rem">
+                            <span style="font-family:var(--font-mono);font-size:.56rem;color:var(--ink-mid)">🇮🇳 India &nbsp;<strong>112</strong></span>
+                            <span style="font-family:var(--font-mono);font-size:.56rem;color:var(--ink-mid)">🇺🇸 US &nbsp;<strong>911</strong></span>
+                            <span style="font-family:var(--font-mono);font-size:.56rem;color:var(--ink-mid)">🇬🇧 UK &nbsp;<strong>999</strong></span>
+                            <span style="font-family:var(--font-mono);font-size:.56rem;color:var(--ink-mid)">🌍 EU &nbsp;<strong>112</strong></span>
+                            <span style="font-family:var(--font-mono);font-size:.56rem;color:var(--ink-mid)">🇦🇺 AU &nbsp;<strong>000</strong></span>
+                        </div>
                     </div>
+                </div>
             </div>
-
+ 
             <div class="onb-disclaimer-block">
                 <div class="onb-disclaimer-num">05</div>
                 <div>
@@ -1825,12 +1828,12 @@
                     <p class="onb-text">You must be of legal age to purchase and consume nicotine products in your jurisdiction to use this app.</p>
                 </div>
             </div>
-
+ 
             <div class="onb-disclaimer-scroll-hint" id="onbScrollHint">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
                 Scroll to read all terms
             </div>
-
+ 
             <div class="onb-disclaimer-confirm" id="onbDisclaimerConfirm">
                 <label class="onb-check-row">
                     <input type="checkbox" id="onbDisclaimerCb" onchange="onbCheckReady()" class="onb-checkbox">
@@ -1840,7 +1843,7 @@
             </div>
         </div>
         <button class="onb-btn" id="onbDisclaimerBtn" onclick="nextOnboarding('onbPrivacy')" disabled style="opacity:.38;cursor:not-allowed">
-            I Accept & Understand
+            I Accept &amp; Understand
         </button>
     </div>
 
@@ -2397,25 +2400,26 @@
 
         </div>
     </div>
+
     <!-- SHARE CARD OVERLAY -->
     <div class="onboarding-shell done" id="shareCardShell" style="z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);">
         <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
             <div style="background: var(--surface); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 350px; display: flex; flex-direction: column; align-items: center; position: relative;">
-                <button onclick="document.getElementById('shareCardShell').classList.add('done')" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--ink-dim); padding: 0.5rem;">
+                <button onclick="document.getElementById('shareCardShell').classList.add('done')" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--ink-dim); padding: 0.5rem; cursor:pointer;">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
                 <div style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--ink); margin-bottom: 1rem;">Your Milestone</div>
-                <canvas id="shareCanvas" width="1080" height="1080" style="width: 100%; height: auto; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 1.5rem;"></canvas>
-                <div style="font-size: 0.75rem; color: var(--ink-dim); text-align: center; margin-bottom: 1rem; font-family: var(--font-mono);">Long-press to save · or use the button below</div>
-                    <div style="display:flex;gap:.6rem;width:100%">
-                        <button class="log-submit" style="margin:0;background:var(--sage);flex:1" onclick="downloadShareCard()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="margin-right:.3rem"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                            Download
-                        </button>
-                        <button class="log-submit" style="margin:0;background:var(--bg-card);color:var(--ink);flex:1" onclick="document.getElementById('shareCardShell').classList.add('done')">Done</button>
-                    </div>
+                <canvas id="shareCanvas" width="1080" height="1080" style="width: 100%; height: auto; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 1.2rem;"></canvas>
+                <div style="font-size: 0.72rem; color: var(--ink-faint); text-align: center; margin-bottom: .85rem; font-family: var(--font-mono); letter-spacing:.03em">Long-press the image to save · or download below</div>
+                <div style="display:flex;gap:.6rem;width:100%">
+                    <button class="log-submit" style="margin:0;background:var(--sage);flex:1;display:flex;align-items:center;justify-content:center;gap:.4rem" onclick="downloadShareCard()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download
+                    </button>
+                    <button class="log-submit" style="margin:0;background:var(--bg-card);color:var(--ink);flex:1" onclick="document.getElementById('shareCardShell').classList.add('done')">Done</button>
                 </div>
             </div>
+        </div>
     </div>
 
     <script src="app.js"></script>
