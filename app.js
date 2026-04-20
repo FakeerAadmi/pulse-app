@@ -112,6 +112,7 @@ const MOODS = [
    APP STATE
    ========================================================= */
 const state = {
+    pulseMode: 'focused',   // 'focused' | 'full'
     onboarded: false,
     userProfile: { age: 28, sex: 'M', weight: 70, yearsSmoked: 3, primaryProduct: 'cigarette', dailyFreq: '3-5', cycleLength: 28, lastPeriod: null },
     biometrics: {
@@ -257,6 +258,7 @@ function finishOnboarding() {
     if (shell) shell.classList.add('done');
 
     tick();
+    applyMode();
 
     setTimeout(() => { if (!state.tourSeen) openTour(); }, 500);
 }
@@ -1563,6 +1565,43 @@ function updateMode() {
         'Understand patterns': { budget: 0, budgetLabel: 'No limit' },
         'Quit support': { budget: 3, budgetLabel: '3 mg' },
     };
+    // Called during onboarding card selection
+   let _onbMode = 'focused';
+   function onbSelectMode(mode) {
+       _onbMode = mode;
+       document.getElementById('onbModeFocused').classList.toggle('on', mode === 'focused');
+       document.getElementById('onbModeFull').classList.toggle('on', mode === 'full');
+   }
+   function applyOnbMode() {
+       state.pulseMode = _onbMode;
+       applyMode();
+   }
+   window.onbSelectMode = onbSelectMode;
+   window.applyOnbMode = applyOnbMode;
+   
+   // Wire the existing modeSelect dropdown in settings to also write pulseMode
+   function applyMode() {
+      const ring = document.getElementById('satRing'); // your actual ring wrapper id
+      const bar  = document.getElementById('focusedProgressBar');
+      if (ring) ring.style.display = isFull ? '' : 'none';
+      if (bar)  bar.style.display  = isFull ? 'none' : '';
+       const isFull = state.pulseMode === 'full';
+       // Biometrics section
+       const bio = document.getElementById('bioLockable');
+       if (bio) bio.style.display = isFull ? '' : 'none';
+       // Saturation ring / nicotine curve card
+       const satCard = document.getElementById('satCard'); // ← check your actual ID
+       if (satCard) satCard.style.display = isFull ? '' : 'none';
+       // Caffeine interaction card
+       const caffCard = document.getElementById('caffeineCard');
+       if (caffCard) caffCard.style.display = isFull ? '' : 'none';
+       // HRV/metric tiles — wrap them in a container with id="advancedTiles" (see step D)
+       const advTiles = document.getElementById('advancedTiles');
+       if (advTiles) advTiles.style.display = isFull ? '' : 'none';
+       // Sync the settings dropdown to match
+       const sel = document.getElementById('interfaceModeSelect'); // new select — see step E
+       if (sel) sel.value = state.pulseMode;
+   }
     const defaults = modeDefaults[state.mode];
     if (defaults) {
         if (defaults.budget > 0 && state.dailyBudget === 0) {
@@ -2470,6 +2509,7 @@ window.saveCommitment = function () {
     const txt = document.getElementById('commitmentText').value.trim();
     if (txt) localStorage.setItem('pulse_commitment', txt);
     finishOnboarding();
+    applyMode();
 };
 function onbCheckScroll() {
     const el = document.getElementById('onbDisclaimerScroll');
