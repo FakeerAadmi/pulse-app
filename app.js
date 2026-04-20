@@ -1349,9 +1349,24 @@ function detectLocation() {
         });
 }
 
+window.downloadShareCard = function () {
+    const canvas = document.getElementById('shareCanvas');
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = 'pulse-progress-' + new Date().toISOString().slice(0,10) + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+};
+
 window.generateShareCard = function () {
     const canvas = document.getElementById('shareCanvas');
     if (!canvas) return;
+
+    // Wait for fonts before drawing so Fraunces renders correctly
+    document.fonts.ready.then(() => _drawShareCard(canvas));
+};
+
+function _drawShareCard(canvas) {
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
     const isDark = state.darkMode || state.amoledMode;
@@ -1391,10 +1406,12 @@ window.generateShareCard = function () {
     ctx.strokeStyle = isDark ? 'rgba(255,255,255,.07)' : 'rgba(26,23,20,.07)';
     ctx.lineWidth = 2; ctx.stroke();
 
-    // Big number
-    ctx.font = '300 380px "Fraunces",serif';
+    // Big number — scale font down for 3-digit numbers to prevent clipping
+    const numStr = cleanDays.toString();
+    const numFontSize = numStr.length >= 3 ? 260 : numStr.length === 2 ? 320 : 380;
+    ctx.font = `300 ${numFontSize}px "Fraunces",serif`;
     ctx.fillStyle = sageCol; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText(cleanDays.toString(), 72, H * 0.52);
+    ctx.fillText(numStr, 72, H * 0.52);
 
     // Label
     ctx.font = '300 72px "Fraunces",serif';
@@ -1441,8 +1458,8 @@ window.generateShareCard = function () {
     ctx.fillStyle = dimCol; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
     ctx.fillText('Local data only · Private progress · Not medical advice', W / 2, H - 72);
 
-    document.getElementById('shareCardShell').classList.remove('done');
-};
+document.getElementById('shareCardShell').classList.remove('done');
+}
 
 function updateMode() {
     const sel = document.getElementById('modeSelect');
