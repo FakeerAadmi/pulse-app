@@ -338,15 +338,6 @@
                             <div class="tl-sec-title" id="tlSectionTitle">Today's timeline</div>
                             <div class="timeline" id="histTimeline"></div>
                         </div>
-                                                    <!-- Milestone Share (Local Only) -->
-                            <div class="insight-card" style="margin-bottom:.8rem; background: var(--sage-bg); border-color: var(--sage-border);">
-                                <div class="ic-hdr" style="margin-bottom:.4rem">
-                                    <div class="ic-title" style="color: var(--sage);">Milestone Share</div>
-                                    <div class="ic-badge" style="background: var(--sage); color: var(--bg);">Local Only</div>
-                                </div>
-                                <div class="ic-sub" style="color: var(--ink); margin-bottom: 0.8rem;">Generate a beautiful, private image of your progress to save or share on your own terms.</div>
-                                <button class="log-submit" style="background: var(--sage); color: var(--bg); margin: 0; padding: 0.6rem;" onclick="generateShareCard()">Generate Share Card</button>
-                            </div>
                         <div style="height:1rem"></div>
                     </div>
                 </div>
@@ -477,6 +468,15 @@
                                 <div class="ic-val" id="sleepIcVal">—</div>
                                 <div class="ic-sub" id="sleepIcSub">—</div>
                             </div>
+                            <!-- Milestone Share Card -->
+                            <div class="insight-card" style="margin-bottom:.65rem;background:var(--sage-bg);border-color:var(--sage-border);">
+                                <div class="ic-hdr" style="margin-bottom:.35rem">
+                                    <div class="ic-title" style="color:var(--sage)">Milestone Share</div>
+                                    <div class="ic-badge" style="background:var(--sage);color:var(--bg)">Local Only</div>
+                                </div>
+                                <div class="ic-sub" style="color:var(--ink-dim);margin-bottom:.75rem">A private image of your progress — generated on-device, never uploaded.</div>
+                                <button class="log-submit" style="background:var(--sage);color:var(--bg);margin:0;padding:.65rem" onclick="generateShareCard()">Generate Share Card</button>
+                            </div>
                             <div class="export-card">
                                 <div class="ic-hdr">
                                     <div class="ic-title">Export data</div>
@@ -509,33 +509,42 @@
                             <div class="ios-section">
                                 <div class="ios-section-label">Preferences</div>
                                 <div class="ios-group">
-                                    <div class="set-menu-item" onclick="openSetSub('setSubAppearance')">
-                                        <div class="set-menu-left">
-                                            <div class="set-menu-icon"><svg viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="1.5" width="18" height="18">
-                                                    <path
-                                                        d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                                                </svg></div>
-                                            <div>
-                                                <div class="set-menu-title">Appearance</div>
-
+                                    <div class="set-menu-item" onclick="openSetSub('setSubReminders')">
+                                        <div class="set-sub-scroll">
+                                            <div class="settings-card">
+                                                <div class="settings-row">
+                                                    <div>
+                                                        <div class="sr-lbl">Log reminders</div>
+                                                        <div class="sr-sub">Nudge after your usual intake time</div>
+                                                    </div>
+                                                    <div class="sr-right"><label class="toggle-wrap"><input type="checkbox" class="tog-in" checked><span class="tog-sl"></span></label></div>
+                                                </div>
+                                                <div class="settings-row">
+                                                    <div>
+                                                        <div class="sr-lbl">Craving window alerts</div>
+                                                        <div class="sr-sub">Notify when saturation drops below 15%</div>
+                                                    </div>
+                                                    <div class="sr-right"><label class="toggle-wrap"><input type="checkbox" class="tog-in" id="satNotifToggle"><span class="tog-sl"></span></label></div>
+                                                </div>
+                                                <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:.5rem">
+                                                    <div>
+                                                        <div class="sr-lbl">Notification permission</div>
+                                                        <div class="sr-sub">Required for saturation alerts</div>
+                                                    </div>
+                                                    <button class="notif-perm-btn" id="notifPermBtn" onclick="requestNotificationPermission()">Enable notifications</button>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="set-menu-chevron"><svg viewBox="0 0 24 24" fill="none"
-                                                stroke="currentColor" stroke-width="2.5" width="11" height="11">
-                                                <polyline points="9 18 15 12 9 6" />
-                                            </svg></div>
-                                    </div>
-                                    <div class="set-menu-item" onclick="openSetSub('setSubPersonal')">
-                                        <div class="set-menu-left">
-                                            <div class="set-menu-icon"><svg viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="1.5" width="18" height="18">
-                                                    <path
-                                                        d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
-                                                </svg></div>
-                                            <div>
-                                                <div class="set-menu-title">Personalisation</div>
-                                                <div class="set-menu-sub">Products, brands, location</div>
+                                        
+                                            <div class="settings-card" style="margin-top:.8rem">
+                                                <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:.5rem">
+                                                    <div>
+                                                        <div class="sr-lbl">Accountability partner</div>
+                                                        <div class="sr-sub">Their name appears during the craving timer</div>
+                                                    </div>
+                                                    <input type="text" class="settings-text-input" id="partnerNameInput"
+                                                        placeholder="e.g. Priya, Mum, Future Me…"
+                                                        oninput="localStorage.setItem('pulse_partner_name', this.value)">
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="set-menu-chevron"><svg viewBox="0 0 24 24" fill="none"
@@ -887,7 +896,7 @@
                             </div>
                         </div>
 
-                        <!-- SUB: REMINDERS -->
+<!-- SUB: REMINDERS -->
                         <div class="set-sub-screen" id="setSubReminders">
                             <div class="set-back-header">
                                 <button class="set-back-btn" onclick="closeSetSub('setSubReminders')"><svg
@@ -910,12 +919,35 @@
                                     </div>
                                     <div class="settings-row">
                                         <div>
-                                            <div class="sr-lbl">Craving prompts</div>
-                                            <div class="sr-sub">Alert when saturation is falling fast</div>
+                                            <div class="sr-lbl">Craving window alerts</div>
+                                            <div class="sr-sub">Notify when saturation drops below 15%</div>
                                         </div>
                                         <div class="sr-right"><label class="toggle-wrap"><input type="checkbox"
-                                                    class="tog-in"><span class="tog-sl"></span></label></div>
+                                                    class="tog-in" id="satNotifToggle"><span class="tog-sl"></span></label></div>
                                     </div>
+                                    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:.5rem">
+                                        <div>
+                                            <div class="sr-lbl">Notification permission</div>
+                                            <div class="sr-sub">Required for saturation alerts to fire</div>
+                                        </div>
+                                        <button class="notif-perm-btn" id="notifPermBtn" onclick="requestNotificationPermission()">Enable notifications</button>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card" style="margin-top:.8rem">
+                                    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:.5rem">
+                                        <div>
+                                            <div class="sr-lbl">Accountability partner</div>
+                                            <div class="sr-sub">Their name appears on the craving timer screen</div>
+                                        </div>
+                                        <input type="text" class="settings-text-input" id="partnerNameInput"
+                                            placeholder="e.g. Priya, Mum, Future Me…"
+                                            oninput="localStorage.setItem('pulse_partner_name', this.value)">
+                                    </div>
+                                </div>
+
+                                <div style="padding:.6rem .1rem 0;font-family:var(--font-mono);font-size:.5rem;color:var(--ink-faint);line-height:1.65">
+                                    Saturation alerts fire locally — no server involved. Notifications require browser permission and won't work in all mobile browsers.
                                 </div>
                             </div>
                         </div>
@@ -1774,9 +1806,16 @@
             <div class="onb-disclaimer-block">
                 <div class="onb-disclaimer-num">04</div>
                 <div>
-                    <div class="onb-disclaimer-heading">Emergencies: do not use this app</div>
-                    <p class="onb-text">If you believe you are experiencing a medical emergency, <strong>call emergency services immediately.</strong> Do not use Pulse. Do not delay seeking help because of anything shown in this app.</p>
-                </div>
+<div class="onb-disclaimer-heading">Emergencies: do not use this app</div>
+                    <p class="onb-text">If you believe you are experiencing a medical emergency, <strong>call emergency services immediately.</strong> Do not use Pulse.</p>
+                    <div style="background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:8px;padding:.55rem .75rem;margin-top:.45rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+                        <span style="font-family:var(--font-mono);font-size:.5rem;color:var(--warn);font-weight:500;flex-basis:100%">Emergency numbers</span>
+                        <span style="font-family:var(--font-mono);font-size:.54rem;color:var(--ink-mid)">🇮🇳 <strong>112</strong></span>
+                        <span style="font-family:var(--font-mono);font-size:.54rem;color:var(--ink-mid)">🇺🇸 <strong>911</strong></span>
+                        <span style="font-family:var(--font-mono);font-size:.54rem;color:var(--ink-mid)">🇬🇧 <strong>999</strong></span>
+                        <span style="font-family:var(--font-mono);font-size:.54rem;color:var(--ink-mid)">🌍 EU <strong>112</strong></span>
+                        <span style="font-family:var(--font-mono);font-size:.54rem;color:var(--ink-mid)">🇦🇺 <strong>000</strong></span>
+                    </div>
             </div>
 
             <div class="onb-disclaimer-block">
@@ -2367,10 +2406,16 @@
                 </button>
                 <div style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--ink); margin-bottom: 1rem;">Your Milestone</div>
                 <canvas id="shareCanvas" width="1080" height="1080" style="width: 100%; height: auto; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 1.5rem;"></canvas>
-                <div style="font-size: 0.8rem; color: var(--ink-dim); text-align: center; margin-bottom: 1rem;">Long-press the image to save or share.</div>
-                <button class="log-submit" style="margin: 0;" onclick="document.getElementById('shareCardShell').classList.add('done')">Done</button>
+                <div style="font-size: 0.75rem; color: var(--ink-dim); text-align: center; margin-bottom: 1rem; font-family: var(--font-mono);">Long-press to save · or use the button below</div>
+                    <div style="display:flex;gap:.6rem;width:100%">
+                        <button class="log-submit" style="margin:0;background:var(--sage);flex:1" onclick="downloadShareCard()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="margin-right:.3rem"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Download
+                        </button>
+                        <button class="log-submit" style="margin:0;background:var(--bg-card);color:var(--ink);flex:1" onclick="document.getElementById('shareCardShell').classList.add('done')">Done</button>
+                    </div>
+                </div>
             </div>
-        </div>
     </div>
 
     <script src="app.js"></script>
