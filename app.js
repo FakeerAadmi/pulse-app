@@ -1353,7 +1353,7 @@ window.downloadShareCard = function () {
     const canvas = document.getElementById('shareCanvas');
     if (!canvas) return;
     const link = document.createElement('a');
-    link.download = 'pulse-progress-' + new Date().toISOString().slice(0,10) + '.png';
+    link.download = 'pulse-progress-' + new Date().toISOString().slice(0, 10) + '.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
 };
@@ -1361,9 +1361,101 @@ window.downloadShareCard = function () {
 window.generateShareCard = function () {
     const canvas = document.getElementById('shareCanvas');
     if (!canvas) return;
-
-    // Wait for fonts before drawing so Fraunces renders correctly
-    document.fonts.ready.then(() => _drawShareCard(canvas));
+ 
+    document.fonts.ready.then(function () {
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        const isDark = state.darkMode || state.amoledMode;
+ 
+        // Background
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        if (isDark) { bg.addColorStop(0, '#1c1a16'); bg.addColorStop(1, '#0f0e0c'); }
+        else { bg.addColorStop(0, '#f2ede5'); bg.addColorStop(1, '#ddd8ce'); }
+        ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+ 
+        // Decorative arc
+        ctx.beginPath();
+        ctx.arc(W + 80, -80, W * 0.72, 0, Math.PI * 2);
+        ctx.strokeStyle = isDark ? 'rgba(90,156,143,.07)' : 'rgba(74,124,111,.06)';
+        ctx.lineWidth = 120; ctx.stroke();
+ 
+        // Compute stats
+        const nowMs = Date.now(), d = new Date(nowMs);
+        const monthStartMs = new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+        const intakesThisMonth = state.intakes.filter(i => i.time >= monthStartMs);
+        const daysWithIntakes = new Set(intakesThisMonth.map(i => new Date(i.time).getDate()));
+        const currentDay = d.getDate();
+        const cleanDays = Math.max(0, currentDay - daysWithIntakes.size);
+        const cleanPct = Math.round((cleanDays / currentDay) * 100) || 0;
+ 
+        const inkCol = isDark ? '#f0ede8' : '#1a1714';
+        const sageCol = isDark ? '#5a9c8f' : '#4a7c6f';
+        const dimCol = isDark ? '#726a62' : '#9a9288';
+ 
+        // Top label
+        ctx.font = '300 44px "JetBrains Mono",monospace';
+        ctx.fillStyle = dimCol; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('PULSE  ·  ' + new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase(), 88, 88);
+ 
+        // Divider
+        ctx.beginPath(); ctx.moveTo(88, 158); ctx.lineTo(W - 88, 158);
+        ctx.strokeStyle = isDark ? 'rgba(255,255,255,.07)' : 'rgba(26,23,20,.07)';
+        ctx.lineWidth = 2; ctx.stroke();
+ 
+        // Big number — scale font to prevent clipping on 2-3 digit numbers
+        const numStr = cleanDays.toString();
+        const numFontSize = numStr.length >= 3 ? 250 : numStr.length === 2 ? 310 : 380;
+        ctx.font = '300 ' + numFontSize + 'px "Fraunces",serif';
+        ctx.fillStyle = sageCol; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(numStr, 88, H * 0.52);
+ 
+        // Labels
+        ctx.font = '300 72px "Fraunces",serif';
+        ctx.fillStyle = inkCol; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('clean days', 90, H * 0.55);
+        ctx.font = '300 56px "Fraunces",serif';
+        ctx.fillStyle = dimCol;
+        ctx.fillText('this month', 90, H * 0.55 + 88);
+ 
+        // Percentage top-right
+        ctx.font = '400 96px "JetBrains Mono",monospace';
+        ctx.fillStyle = sageCol; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+        ctx.fillText(cleanPct + '%', W - 88, 200);
+        ctx.font = '300 38px "JetBrains Mono",monospace';
+        ctx.fillStyle = dimCol;
+        ctx.fillText('of days clean', W - 88, 314);
+ 
+        // Resilience mini-grid
+        const gX = 90, gY = H * 0.72;
+        const cols = 7, cellSz = 56, cellGap = 12;
+        const rows = 4;
+        for (let i = 0; i < cols * rows; i++) {
+            const daysAgo = cols * rows - 1 - i;
+            const date = new Date(nowMs - daysAgo * 86400000); date.setHours(0, 0, 0, 0);
+            const dayStart = date.getTime(), dayEnd = dayStart + 86400000;
+            const hasIntake = state.intakes.some(x => x.time >= dayStart && x.time < dayEnd);
+            const col = i % cols, row = Math.floor(i / cols);
+            const cx = gX + col * (cellSz + cellGap), cy = gY + row * (cellSz + cellGap);
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(cx, cy, cellSz, cellSz, 10); else ctx.rect(cx, cy, cellSz, cellSz);
+            ctx.fillStyle = hasIntake
+                ? (isDark ? 'rgba(192,96,80,.38)' : 'rgba(138,58,42,.28)')
+                : (isDark ? 'rgba(90,156,143,.55)' : 'rgba(74,124,111,.45)');
+            ctx.fill();
+        }
+ 
+        // Grid label
+        ctx.font = '300 36px "JetBrains Mono",monospace';
+        ctx.fillStyle = dimCol; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('last 28 days', gX, gY + rows * (cellSz + cellGap) + 20);
+ 
+        // Footer
+        ctx.font = '300 34px "JetBrains Mono",monospace';
+        ctx.fillStyle = dimCol; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('Local data only · Private progress · Not medical advice', W / 2, H - 72);
+ 
+        document.getElementById('shareCardShell').classList.remove('done');
+    });
 };
 
 function _drawShareCard(canvas) {
@@ -2106,6 +2198,11 @@ window.addEventListener('load', () => {
     initScreenScroll('logScroll', 'logTitleEl');
     drawGraph();
     detectLocation();
+    drawGraph();
+    detectLocation();
+    renderPfProdGrid();
+    renderNotifPermButton();
+    updateAccountabilityPartner();
 });
 
 let _pfSex = 'M';
