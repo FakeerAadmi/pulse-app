@@ -865,14 +865,18 @@ function tick() {
         el('budgetFill').style.background = pct > 85 ? 'var(--warn)' : pct > 60 ? 'var(--amber-light)' : 'var(--sage)';
         el('budgetLeft').textContent = remaining + 'mg left';
         el('budgetRight').textContent = state.dailyBudget + 'mg daily limit';
-       const fbl = document.getElementById('focusedBudgetLabel');
-      const fbf = document.getElementById('focusedBudgetFill');
-      if (fbl) fbl.textContent = `You've had ${todayMg.toFixed(1)} mg today — ${Math.max(0, (state.dailyBudget||5) - todayMg).toFixed(1)} left in budget`;
-      if (fbf) fbf.style.width = Math.min((todayMg / (state.dailyBudget||5)) * 100, 100) + '%';
     } else if (budgetInfo) {
         budgetInfo.style.display = 'none';
     }
 
+       // Focused mode bar — always update regardless of budget setting
+    const todayMgFocused = state.intakes.filter(l => new Date(l.time).toDateString() === new Date().toDateString()).reduce((s, l) => s + l.mg, 0);
+    const budgetRef = state.dailyBudget > 0 ? state.dailyBudget : 5;
+    const fbl = document.getElementById('focusedBudgetLabel');
+    const fbf = document.getElementById('focusedBudgetFill');
+    if (fbl) fbl.textContent = `You've had ${todayMgFocused.toFixed(1)} mg today — ${Math.max(0, budgetRef - todayMgFocused).toFixed(1)} left in budget`;
+    if (fbf) fbf.style.width = Math.min((todayMgFocused / budgetRef) * 100, 100) + '%';
+   
     const ccVal = document.getElementById('ccVal');
     const ccSub = document.getElementById('ccSub');
     if (state.intakes.length > 0) {
