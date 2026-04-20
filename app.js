@@ -209,6 +209,17 @@ function getGraphWindow(rangeMs) {
     return { winStart, winEnd };
 }
 
+function getStrictWindow(rangeMs) {
+    const now = Date.now();
+    const currentSat = satAt(now, state.intakes);
+    const msToBaseline = currentSat > 0.04 ? Math.log(currentSat / 0.04) / K : 0;
+    const futurePad = Math.min(msToBaseline * 0.15, rangeMs * 0.12, 20 * 60000);
+    return {
+        winStart: now - rangeMs,
+        winEnd: now + Math.max(futurePad, 5 * 60000)
+    };
+}
+
 /* =========================================================
    ONBOARDING
    ========================================================= */
@@ -486,6 +497,7 @@ function openGraphOverlay() {
     requestAnimationFrame(() => requestAnimationFrame(() => {
         renderExpandedGraph();
         renderOvHistory();
+        initExpandedGraphScrub();
     }));
 }
 
@@ -571,7 +583,7 @@ function renderExpandedGraph() {
         }
 
     } else {
-        const { winStart, winEnd } = getGraphWindow(rangeMs);
+        const { winStart, winEnd } = getStrictWindow(rangeMs);
         const winSpan = winEnd - winStart;
 
         const minPxPerMs = (viewW - padL - padR) / winSpan;
@@ -753,7 +765,9 @@ function tick() {
     document.getElementById('mSat').textContent = satPct.toFixed(0) + '%';
     document.getElementById('mSat').className = 'met-val';
     if (window.setSatFluid) window.setSatFluid(satPct);
-
+    updateCaffeineCard(satPct);
+    maybeFireSaturationAlert(satPct);
+   
     const ttb = sat > 0.01 ? Math.ceil(Math.log(sat / 0.05) / K / 60000) : 0;
     const mClear = document.getElementById('mClear');
     if (ttb > 0) {
@@ -1339,45 +1353,93 @@ window.generateShareCard = function () {
     const canvas = document.getElementById('shareCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-
+    const W = canvas.width, H = canvas.height;
     const isDark = state.darkMode || state.amoledMode;
-    ctx.fillStyle = isDark ? (state.amoledMode ? '#000000' : '#0f0e0c') : '#ddd8ce';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, isDark ? '#1a1916' : '#e5e0d8');
-    gradient.addColorStop(1, isDark ? (state.amoledMode ? '#000000' : '#0f0e0c') : '#ddd8ce');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Background
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    if (isDark) { bg.addColorStop(0, '#1c1a16'); bg.addColorStop(1, '#0f0e0c'); }
+    else { bg.addColorStop(0, '#f2ede5'); bg.addColorStop(1, '#ddd8ce'); }
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
-    const nowMs = Date.now();
-    const d = new Date(nowMs);
-    const currentMonth = d.getMonth();
-    const currentYear = d.getFullYear();
-    const monthStartMs = new Date(currentYear, currentMonth, 1).getTime();
+    // Decorative arc background
+    ctx.beginPath();
+    ctx.arc(W + 80, -80, W * 0.72, 0, Math.PI * 2);
+    ctx.strokeStyle = isDark ? 'rgba(90,156,143,.07)' : 'rgba(74,124,111,.06)';
+    ctx.lineWidth = 120; ctx.stroke();
+
+    // Compute stats
+    const nowMs = Date.now(), d = new Date(nowMs);
+    const monthStartMs = new Date(d.getFullYear(), d.getMonth(), 1).getTime();
     const intakesThisMonth = state.intakes.filter(i => i.time >= monthStartMs);
     const daysWithIntakes = new Set(intakesThisMonth.map(i => new Date(i.time).getDate()));
-    const currentDayOfMonth = d.getDate();
-    const cleanDaysSoFar = Math.max(0, currentDayOfMonth - daysWithIntakes.size);
+    const currentDay = d.getDate();
+    const cleanDays = Math.max(0, currentDay - daysWithIntakes.size);
+    const cleanPct = Math.round((cleanDays / currentDay) * 100) || 0;
 
-    ctx.fillStyle = isDark ? '#f0ede8' : '#1a1714';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    const inkCol = isDark ? '#f0ede8' : '#1a1714';
+    const sageCol = isDark ? '#5a9c8f' : '#4a7c6f';
+    const dimCol = isDark ? '#726a62' : '#9a9288';
 
-    ctx.font = '300 60px "Fraunces", serif';
-    ctx.fillText('P U L S E', canvas.width / 2, 120);
+    // Top label
+    ctx.font = '300 44px "JetBrains Mono",monospace';
+    ctx.fillStyle = dimCol; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText('PULSE  ·  ' + new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase(), 88, 88);
 
-    ctx.font = '300 240px "Instrument Sans", sans-serif';
-    ctx.fillStyle = '#5a9c8f';
-    ctx.fillText(cleanDaysSoFar.toString(), canvas.width / 2, canvas.height / 2 - 50);
+    // Divider line
+    ctx.beginPath(); ctx.moveTo(88, 158); ctx.lineTo(W - 88, 158);
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,.07)' : 'rgba(26,23,20,.07)';
+    ctx.lineWidth = 2; ctx.stroke();
 
-    ctx.font = '400 60px "Instrument Sans", sans-serif';
-    ctx.fillStyle = isDark ? '#c8c0b6' : '#4a4540';
-    ctx.fillText('Clean Days This Month', canvas.width / 2, canvas.height / 2 + 100);
+    // Big number
+    ctx.font = '300 380px "Fraunces",serif';
+    ctx.fillStyle = sageCol; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText(cleanDays.toString(), 72, H * 0.52);
 
-    ctx.font = '300 40px "JetBrains Mono", monospace';
-    ctx.fillStyle = isDark ? '#726a62' : '#8a8077';
-    ctx.fillText('Local Data Only · Private Progress', canvas.width / 2, canvas.height - 120);
+    // Label
+    ctx.font = '300 72px "Fraunces",serif';
+    ctx.fillStyle = inkCol; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText('clean days', 90, H * 0.55);
+    ctx.font = '300 56px "Fraunces",serif';
+    ctx.fillStyle = dimCol;
+    ctx.fillText('this month', 90, H * 0.55 + 88);
+
+    // Percentage top-right
+    ctx.font = '400 96px "JetBrains Mono",monospace';
+    ctx.fillStyle = sageCol; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+    ctx.fillText(cleanPct + '%', W - 88, 200);
+    ctx.font = '300 38px "JetBrains Mono",monospace';
+    ctx.fillStyle = dimCol;
+    ctx.fillText('of days clean', W - 88, 314);
+
+    // Resilience mini-grid
+    const gX = 90, gY = H * 0.72;
+    const cols = 7, cellSz = 56, cellGap = 12;
+    const rows = 4;
+    for (let i = 0; i < cols * rows; i++) {
+        const daysAgo = cols * rows - 1 - i;
+        const date = new Date(nowMs - daysAgo * 86400000); date.setHours(0,0,0,0);
+        const dayStart = date.getTime(), dayEnd = dayStart + 86400000;
+        const hasIntake = state.intakes.some(x => x.time >= dayStart && x.time < dayEnd);
+        const col = i % cols, row = Math.floor(i / cols);
+        const cx = gX + col * (cellSz + cellGap), cy = gY + row * (cellSz + cellGap);
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(cx, cy, cellSz, cellSz, 10); else ctx.rect(cx, cy, cellSz, cellSz);
+        ctx.fillStyle = hasIntake
+            ? (isDark ? 'rgba(192,96,80,.38)' : 'rgba(138,58,42,.28)')
+            : (isDark ? 'rgba(90,156,143,.55)' : 'rgba(74,124,111,.45)');
+        ctx.fill();
+    }
+
+    // Grid label
+    ctx.font = '300 36px "JetBrains Mono",monospace';
+    ctx.fillStyle = dimCol; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText('last 28 days', gX, gY + rows * (cellSz + cellGap) + 20);
+
+    // Footer
+    ctx.font = '300 34px "JetBrains Mono",monospace';
+    ctx.fillStyle = dimCol; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText('Local data only · Private progress · Not medical advice', W / 2, H - 72);
 
     document.getElementById('shareCardShell').classList.remove('done');
 };
@@ -1616,12 +1678,29 @@ function openCrave() {
         return el;
     })();
 
-    const commitment = localStorage.getItem('pulse_commitment');
-    if (commitment) {
-        ctxEl.innerHTML = `<span style="font-family:var(--font-mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--sage);">Your Why</span><br><br><span style="color:var(--ink);font-style:italic;">"${commitment}"</span>`;
-    } else {
-        ctxEl.innerHTML = `This craving is just a biological response. It will pass.`;
+const commitment = localStorage.getItem('pulse_commitment');
+const partner = localStorage.getItem('pulse_partner_name');
+
+if (partner || commitment) {
+    let html = '';
+    if (partner) {
+        html += `
+        <div style="margin-bottom:.85rem">
+            <div style="font-family:var(--font-mono);font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);margin-bottom:.35rem">What would ${partner} say?</div>
+            <div style="font-family:var(--font-serif);font-size:.92rem;font-style:italic;color:var(--ink-mid);line-height:1.5">"You've got this. Ride it out — it's just chemistry."</div>
+        </div>`;
     }
+    if (commitment) {
+        html += `
+        <div>
+            <div style="font-family:var(--font-mono);font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--sage);margin-bottom:.35rem">Your Why</div>
+            <div style="font-family:var(--font-serif);font-size:.88rem;font-style:italic;color:var(--ink);line-height:1.5">"${commitment}"</div>
+        </div>`;
+    }
+    ctxEl.innerHTML = html;
+} else {
+    ctxEl.innerHTML = `<div style="font-size:.85rem;color:var(--ink-dim);line-height:1.6">This craving is a chemical signal from your nervous system.<br>It will pass.</div>`;
+}
 
     ring.style.strokeDasharray = CIRC; ring.style.strokeDashoffset = 0;
     let rem = 600;
@@ -1701,56 +1780,50 @@ const TOUR_STEPS = [
     {
         target: 'tourGraphEl',
         title: 'Your nicotine curve',
-        body: "This is the heart of Pulse. It shows how much nicotine is active in your body right now, and how it fades over time. When you log an intake it spikes up, then gradually comes down over the next few hours. Tap it any time to expand into a full history view.",
+        body: "The heart of Pulse. It shows how much nicotine is active right now, decaying in real time. Each green dot is a logged intake. <strong>Tap to expand</strong> — then drag your finger across the expanded graph to scrub any point in time and see the exact mg level.",
         screen: 'home',
     },
     {
         target: 'tourMetricsEl',
-        title: 'The four tiles',
-        body: "<strong>Saturation</strong> — how full your system is right now. <strong>Clear in</strong> — when it will drop near zero (when cravings are most likely). <strong>HRV</strong> — how relaxed your nervous system is; higher is better. <strong>Dopamine</strong> — where you are in the cycle: rising, peak, falling, or baseline.",
-        screen: 'home',
-    },
-    {
-        target: 'mSat',
-        title: 'When cravings hit',
-        body: "Saturation dropping below about 20% is when your body starts sending craving signals — that restless, reaching feeling. Seeing this helps you understand the craving as a predictable chemical event, not something random.",
-        screen: 'home',
-    },
-    {
-        target: 'mHrv',
-        title: 'HRV — your calm score',
-        body: "Heart Rate Variability reflects how well your nervous system is coping. Nicotine temporarily lowers it, which is why you can feel on edge even right after using. This is estimated until you connect a wearable in Settings.",
+        title: 'The metric tiles',
+        body: "<strong>Saturation</strong> — the fluid-fill tile shows what % of your peak is currently active. <strong>Clear in</strong> — when it drops near zero and cravings are most likely. <strong>Dopamine</strong> — where you are in the cycle: elevated, settling, recovering, or baseline.",
         screen: 'home',
     },
     {
         target: 'tourQuickLogEl',
-        title: 'Logging is one tap',
-        body: "Select the product you used and hit <strong>Log intake</strong>. The curve updates immediately. For more detail — brand, what triggered it, how you were feeling — use the Log tab at the bottom.",
+        title: 'One-tap logging',
+        body: "Pick your product and tap <strong>Log intake</strong> — the curve updates instantly. Use <strong>Plan next intake</strong> below to set a gap goal that appears as a marker on the graph. For trigger, mood, and brand detail, use the full Log tab.",
         screen: 'home',
     },
     {
-        target: 'bioStrip',
-        title: 'Body signals',
-        body: "This strip shows resting heart rate, blood oxygen, stress, HRV, and more. <strong>Swipe left on these cards to see all of them.</strong> They update every 20 minutes and after each log. Coloured arrows show what changed since the last reading — green means improving, amber means under load.",
+        target: 'bioLockable',
+        title: 'Body signal estimates',
+        body: "Pulse estimates HRV, resting heart rate, SpO₂, stress, steps, and sleep quality from your intake pattern. Tap <em>Okay, I understand</em> to reveal them. <strong>Swipe the card strip left</strong> to see all signals. Connect a wearable in Settings for real readings.",
         screen: 'home',
     },
     {
-        target: 'recoveryRingsCard',
-        title: 'Recovery rings',
-        body: "These rings in the Insights tab show how your body is recovering since your last intake. <strong>CO Cleared</strong> — carbon monoxide from smoking takes ~8 hours. <strong>HRV Recover</strong> — your nervous system takes ~24 hours to normalise. <strong>Circulation</strong> — full improvement takes around 2 weeks clean.",
-        screen: 'stats',
+        target: 'caffeineCard',
+        title: 'Caffeine interaction',
+        body: "When your saturation drops below 25%, Pulse shows a caffeine warning. Nicotine withdrawal and caffeine sensitivity feel identical — jitteriness, restlessness, irritability. Nicotine also makes caffeine metabolise ~40% faster, so the same coffee hits harder as you use less.",
+        screen: 'home',
     },
     {
         target: 'tourCraveEl',
-        title: 'Craving timer',
-        body: "On the Log tab, below the intake form, is the craving timer. Start it when you feel an urge — most cravings pass within 5-10 minutes. Watching the countdown makes it easier to ride out rather than act on it.",
+        title: 'The craving timer',
+        body: "When an urge hits, start the 10-minute countdown. Most cravings peak and pass within that window. Your commitment note and accountability partner name both appear here — a reminder of your own reasons, in your own words.",
         screen: 'log',
     },
     {
-        target: 'tourGraphEl',
-        title: 'Settings worth exploring',
-        body: "In <strong>Settings → Nicotine Guide</strong> you will find plain-language explanations of each product. <strong>Glossary &amp; Tour</strong> explains every metric. You can replay this tour any time from there. Everything stays on your device — nothing is ever sent anywhere.",
-        screen: 'home',
+        target: 'streakCard',
+        title: 'Resilience grid',
+        body: "Each square is one day over the last 28. Green = no logged intake. Amber = had intakes. The percentage shows how many days this month were clean — framed as honest progress, not a streak to break.",
+        screen: 'stats',
+    },
+    {
+        target: 'recoveryRingsCard',
+        title: 'Body recovery rings',
+        body: "<strong>CO Cleared</strong> — carbon monoxide from combustibles takes ~8 hours. <strong>HRV Recover</strong> — your nervous system takes ~24 hours to normalise. <strong>Circulation</strong> — full improvement takes ~2 weeks. Each ring counts from your last intake.",
+        screen: 'stats',
     },
 ];
 let _tourStep = 0;
@@ -1856,6 +1929,148 @@ function closeModal(id) {
 }
 function closeModalOutside(e, id) {
     if (e.target === e.currentTarget) closeModal(id);
+}
+
+/* =========================================================
+   STAGE 2 — SCRUBBABLE GRAPH
+   ========================================================= */
+function initExpandedGraphScrub() {
+    const wrap = document.querySelector('.graph-ov-canvas-wrap');
+    if (!wrap || wrap._scrubInit) return;
+    wrap._scrubInit = true;
+
+    const cursor = document.getElementById('scrubCursor');
+    const bubble = document.getElementById('scrubBubble');
+
+    function updateScrub(clientX) {
+        if (!cursor || !bubble) return;
+        const isMultiDay = state.graphRange === '7d' || state.graphRange === '30d';
+        if (isMultiDay) { cursor.style.display = 'none'; return; }
+
+        const rect = wrap.getBoundingClientRect();
+        const pixelX = clientX - rect.left + wrap.scrollLeft;
+        const rangeMs = { '4h': 4, '12h': 12, '24h': 24 }[state.graphRange] * 3600000;
+        const overlayEl = document.getElementById('graphOverlay');
+        const viewW = overlayEl ? overlayEl.clientWidth : 380;
+        const canvas = document.getElementById('expandedGraph');
+        const canvasW = canvas ? canvas.offsetWidth : viewW;
+        const padL = 44, padR = 18;
+        const W = canvasW - padL - padR;
+        const { winStart, winEnd } = getStrictWindow(rangeMs);
+        const winSpan = winEnd - winStart;
+
+        const t = winStart + ((pixelX - padL) / W) * winSpan;
+        if (pixelX < padL || pixelX > padL + W) { cursor.style.display = 'none'; return; }
+
+        const mgAtT = Math.max(0, satAt(t, state.intakes));
+        const pctAtT = Math.min(mgAtT / SAT_MAX * 100, 100);
+        const d = new Date(t);
+        const isFuture = t > Date.now();
+        const timeStr = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+
+        cursor.style.display = 'block';
+        cursor.style.left = pixelX + 'px';
+
+        const bubbleRight = pixelX > canvasW * 0.55;
+        bubble.style.left = bubbleRight ? 'auto' : '10px';
+        bubble.style.right = bubbleRight ? '10px' : 'auto';
+        bubble.innerHTML = `
+            <div class="scrub-time">${timeStr}${isFuture ? ' · projected' : ''}</div>
+            <div class="scrub-mg">${mgAtT.toFixed(2)}<span style="font-size:.5rem;opacity:.6">mg</span></div>
+            <div class="scrub-pct">${pctAtT.toFixed(0)}% sat</div>
+        `;
+    }
+
+    function hideScrub() { if (cursor) cursor.style.display = 'none'; }
+
+    wrap.addEventListener('touchstart', (e) => updateScrub(e.touches[0].clientX), { passive: true });
+    wrap.addEventListener('touchmove', (e) => { e.preventDefault(); updateScrub(e.touches[0].clientX); }, { passive: false });
+    wrap.addEventListener('touchend', hideScrub);
+    wrap.addEventListener('mousemove', (e) => updateScrub(e.clientX));
+    wrap.addEventListener('mouseleave', hideScrub);
+}
+
+/* =========================================================
+   STAGE 2 — LOCAL PUSH NOTIFICATIONS
+   ========================================================= */
+let _lastLowSatNotif = 0;
+
+function requestNotificationPermission() {
+    if (!('Notification' in window)) {
+        const toast = document.getElementById('logToast');
+        if (toast) { toast.textContent = 'Notifications not supported in this browser'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+        return;
+    }
+    Notification.requestPermission().then(perm => {
+        const toast = document.getElementById('logToast');
+        if (!toast) return;
+        toast.textContent = perm === 'granted'
+            ? 'Notifications on — Pulse will warn you before craving windows'
+            : 'Notifications declined · you can enable in browser settings';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+        const btn = document.getElementById('notifPermBtn');
+        if (btn) renderNotifPermButton();
+    });
+}
+window.requestNotificationPermission = requestNotificationPermission;
+
+function renderNotifPermButton() {
+    const btn = document.getElementById('notifPermBtn');
+    if (!btn || !('Notification' in window)) return;
+    const perm = Notification.permission;
+    if (perm === 'granted') {
+        btn.textContent = 'Enabled ✓';
+        btn.disabled = true;
+        btn.style.background = 'var(--sage-bg)';
+        btn.style.color = 'var(--sage)';
+        btn.style.borderColor = 'var(--sage-border)';
+    } else if (perm === 'denied') {
+        btn.textContent = 'Blocked in browser';
+        btn.disabled = true;
+        btn.style.opacity = '.5';
+    }
+}
+
+function maybeFireSaturationAlert(satPct) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const notifToggle = document.getElementById('satNotifToggle');
+    if (notifToggle && !notifToggle.checked) return;
+    const now = Date.now();
+    if (satPct <= 15 && satPct > 1 && state.intakes.length > 0) {
+        if (now - _lastLowSatNotif > 40 * 60000) {
+            _lastLowSatNotif = now;
+            try {
+                new Notification('Pulse — craving window opening', {
+                    body: `Nicotine is at ${satPct.toFixed(0)}%. Your body will signal in the next 20–30 minutes.`,
+                    tag: 'pulse-low-sat',
+                    silent: true
+                });
+            } catch (e) { }
+        }
+    }
+}
+
+/* =========================================================
+   STAGE 2 — CAFFEINE INTERACTION
+   ========================================================= */
+function updateCaffeineCard(satPct) {
+    const card = document.getElementById('caffeineCard');
+    if (!card || state._caffeineCardDismissed) return;
+    const recentIntake = state.intakes.some(i => Date.now() - i.time < 8 * 3600000);
+    const shouldShow = satPct < 25 && satPct > 2 && recentIntake;
+    card.style.display = shouldShow ? '' : 'none';
+}
+
+/* =========================================================
+   STAGE 2 — ACCOUNTABILITY PARTNER
+   ========================================================= */
+function updateAccountabilityPartner() {
+    const input = document.getElementById('partnerNameInput');
+    if (input) {
+        const saved = localStorage.getItem('pulse_partner_name') || '';
+        input.value = saved;
+    }
 }
 
 /* =========================================================
