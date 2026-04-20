@@ -865,6 +865,10 @@ function tick() {
         el('budgetFill').style.background = pct > 85 ? 'var(--warn)' : pct > 60 ? 'var(--amber-light)' : 'var(--sage)';
         el('budgetLeft').textContent = remaining + 'mg left';
         el('budgetRight').textContent = state.dailyBudget + 'mg daily limit';
+       const fbl = document.getElementById('focusedBudgetLabel');
+      const fbf = document.getElementById('focusedBudgetFill');
+      if (fbl) fbl.textContent = `You've had ${todayMg.toFixed(1)} mg today — ${Math.max(0, (state.dailyBudget||5) - todayMg).toFixed(1)} left in budget`;
+      if (fbf) fbf.style.width = Math.min((todayMg / (state.dailyBudget||5)) * 100, 100) + '%';
     } else if (budgetInfo) {
         budgetInfo.style.display = 'none';
     }
@@ -1581,10 +1585,6 @@ function updateMode() {
    
    // Wire the existing modeSelect dropdown in settings to also write pulseMode
    function applyMode() {
-      const ring = document.getElementById('satRing'); // your actual ring wrapper id
-      const bar  = document.getElementById('focusedProgressBar');
-      if (ring) ring.style.display = isFull ? '' : 'none';
-      if (bar)  bar.style.display  = isFull ? 'none' : '';
        const isFull = state.pulseMode === 'full';
        // Biometrics section
        const bio = document.getElementById('bioLockable');
@@ -1601,6 +1601,11 @@ function updateMode() {
        // Sync the settings dropdown to match
        const sel = document.getElementById('interfaceModeSelect'); // new select — see step E
        if (sel) sel.value = state.pulseMode;
+       const nudge = document.getElementById('focusedUpgradeNudge');
+       if (nudge) {
+       const daysSet = new Set(state.intakes.map(i => new Date(i.ts).toDateString()));
+       nudge.style.display = (!isFull && daysSet.size >= 7) ? '' : 'none';
+}
    }
     const defaults = modeDefaults[state.mode];
     if (defaults) {
@@ -1992,6 +1997,9 @@ function closeTour() {
 
 function tourNext() {
     _tourStep++;
+    if (state.pulseMode === 'focused' && (_tourStep === 3 || _tourStep === 4)) {
+        _tourStep = 5;
+    }
     if (_tourStep >= TOUR_STEPS.length) { closeTour(); return; }
     renderTourStep();
 }
@@ -2004,7 +2012,7 @@ function tourBack() {
 
 function renderTourStep() {
     const step = TOUR_STEPS[_tourStep];
-    const total = TOUR_STEPS.length;
+    const total = state.pulseMode === 'focused' ? TOUR_STEPS.length - 2 : TOUR_STEPS.length;
 
     const targetScreen = step.screen || 'home';
     const currentActive = document.querySelector('.screen.active');
