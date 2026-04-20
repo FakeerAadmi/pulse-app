@@ -4449,3 +4449,13 @@ body.dark .tracker-blur-content {
     background: var(--bg-inset);
     color: var(--ink);
 }
+
+/* ══ SHARE CARD DOWNLOAD BTN ══ */
+#shareCardShell .log-submit {
+    font-size: .82rem;
+    padding: .75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+}
